@@ -1,0 +1,236 @@
+{% load extras %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - Plataformas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.4.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body {
+            background-color: #f0f2f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            position: relative; /* para o relógio posicionar certo */
+            padding-top: 1rem; /* para o relógio não sobrepor o conteúdo */
+        }
+
+        /* Relógio no canto superior direito */
+        #clock {
+            position: fixed;
+            top: 10px;
+            right: 20px;
+            background-color: #007bff;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            font-family: monospace;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            z-index: 1000;
+            user-select: none;
+        }
+
+        .container.mt-4 {
+            padding-top: 0.1rem;
+            padding-bottom: 0.1rem;
+        }
+
+        h1 {
+            color: #343a40;
+            font-weight: 600;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+            margin-bottom: 30px !important;
+            text-align: center;
+        }
+
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            background-color: #007bff !important;
+            color: white !important;
+            font-weight: bold;
+            font-size: 1.15em;
+            border-bottom: none;
+            padding: 1rem 1.25rem;
+        }
+
+        .card-body.p-0 {
+            padding: 1rem !important;
+        }
+
+        .pessoa-item {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 10px 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .pessoa-item.bg-danger {
+            background-color: #dc3545 !important;
+            color: white !important;
+        }
+
+        .pessoa-item.bg-safe {
+            background-color: #029967 !important;
+            color: white !important;
+        }
+
+        .pessoa-item img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 3px solid rgba(255, 255, 255, 0.7);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .pessoa-item div {
+            flex-grow: 1;
+        }
+
+        .pessoa-item strong {
+            display: block;
+            font-size: 1.1em;
+            margin-bottom: 3px;
+        }
+
+        .pessoa-item span {
+            color: #555;
+            font-size: 0.85em;
+            display: block;
+        }
+
+        .pessoa-item.bg-danger span {
+            color: white !important;
+        }
+        
+        .pessoa-item.bg-safe span {
+            color: white !important;
+        }
+
+        .card-body p.p-3 {
+            color: #6c757d;
+            font-style: italic;
+            text-align: center;
+            padding: 1.5rem !important;
+        }
+
+        .container > p {
+            text-align: center;
+            font-size: 1.2em;
+            color: #6c757d;
+            margin-top: 2rem;
+        }
+
+        .card-body .row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            padding: 15px;
+        }
+
+        .card-body .row .col-auto {
+            flex: 0 0 auto;
+            width: auto;
+            max-width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="clock">--/--/---- --:--:--</div>
+
+    <div class="container mt-4">
+        <h1 class="mb-4">Dashboard - Plataformas</h1>
+
+        {% if plataformas_com_pessoas %}
+            <div class="row gy-4">
+                {% for item in plataformas_com_pessoas %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100">
+                            <div class="card-header bg-primary text-white">
+                                Plataforma: {{ item.plataforma.nome }}
+                            </div>
+                            <div class="card-body">
+                                {% if item.logs_ativos %}
+                                    <div class="row justify-content-center">
+                                        {% for log in item.logs_ativos %}
+                                            <div class="col-auto">
+                                                {% if log.data_saida|is_today %}
+                                                    <div class="pessoa-item bg-danger text-white">
+                                                {% elif log.data_entrada|is_today %}
+                                                    <div class="pessoa-item bg-safe text-white">
+                                                {% else %}
+                                                    <div class="pessoa-item">
+                                                {% endif %}
+                                                        {% if log.pessoa.foto %}
+                                                            <img src="{{ log.pessoa.foto.url }}" alt="Foto de {{ log.pessoa.nome }}">
+                                                        {% else %}
+                                                            <div style="width:80px; height:80px; background:#ccc; border-radius:50%; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); border: 3px solid rgba(255, 255, 255, 0.7);"></div>
+                                                        {% endif %}
+                                                        <div>
+                                                            <strong>{{ log.pessoa.nome }}</strong>
+                                                            <span>CPF: {{ log.pessoa.cpf }}</span>
+                                                            <span>Entrada: {{ log.data_entrada|date:"d/m/Y" }}</span>
+                                                            <span>Saída: {{ log.data_saida|date:"d/m/Y" }}</span>
+                                                        </div>
+                                                    </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <p class="p-3 mb-0">Nenhuma pessoa alocada atualmente.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>Não há plataformas cadastradas.</p>
+        {% endif %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.4.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function updateClock() {
+            const now = new Date();
+            // Formata data como dd/mm/yyyy
+            const day = String(now.getDate()).padStart(2, '0');
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const year = now.getFullYear();
+
+            // Formata hora como hh:mm:ss
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+
+            const formatted = `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+
+            document.getElementById('clock').textContent = formatted;
+        }
+
+        // Atualiza a cada segundo
+        setInterval(updateClock, 1000);
+        updateClock(); // Inicializa rápido
+    </script>
+</body>
+</html>
